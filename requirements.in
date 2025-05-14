@@ -3,7 +3,7 @@ cchecksum>=0.1.0
 eip712
 eth-abi
 eth-account
-eth-event>=1.2.7,<2
+eth-event @ git+https://github.com/BobTheBuidler/eth-event@patch-4
 eth-hash[pycryptodome]
 eth-typing>=4.2.1,<5
 eth-utils
