@@ -350,4 +350,3 @@ warnings.filterwarnings("once", category=DeprecationWarning, module="brownie")
 _make_data_folders(DATA_FOLDER)
 
 CONFIG = _Singleton("Config", (ConfigContainer,), {})()
-
