@@ -33,6 +33,7 @@ else:
             "brownie/convert/normalize.py",
             "brownie/convert/utils.py",
             "brownie/project/compiler",
+            "brownie/test",
             "brownie/utils/output.py",
             "brownie/utils/sql.py",
             "brownie/utils/toposort.py",
