@@ -163,6 +163,7 @@ class _ProjectBase:
         return self._containers.keys()
 
 
+@final
 class Project(_ProjectBase):
     """
     Top level dict-like container that holds data and objects related to
@@ -544,16 +545,17 @@ class Project(_ProjectBase):
         self._clear_dev_deployments(0)
 
 
+@final
 class TempProject(_ProjectBase):
     """Simplified Project class used to hold temporary contracts that are
     compiled via project.compile_source"""
 
     def __init__(self, name: str, contract_sources: Dict, compiler_config: Dict) -> None:
-        self._path = None
-        self._build_path = None
-        self._name = name
-        self._sources = Sources(contract_sources, {})
-        self._build = Build(self._sources)
+        self._path: Final = None
+        self._build_path: Final = None
+        self._name: Final = name
+        self._sources: Final = Sources(contract_sources, {})
+        self._build: Final = Build(self._sources)
         self._compile(contract_sources, compiler_config, True)
         self._create_containers()
 
