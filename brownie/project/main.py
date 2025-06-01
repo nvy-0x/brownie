@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# mypy: disable-error-code="union-attr"
 
 import importlib
 import json
@@ -194,8 +195,8 @@ class Project(_ProjectBase):
                 raise ProjectAlreadyLoaded("Project is already active")
             return None
 
-        contract_sources = _load_sources(self._path, self._structure["contracts"], False)
-        interface_sources = _load_sources(self._path, self._structure["interfaces"], True)
+        contract_sources = _load_sources(self._path, self._structure["contracts"], False)  # type: ignore [arg-type]
+        interface_sources = _load_sources(self._path, self._structure["interfaces"], True)  # type: ignore [arg-type]
         self._sources = Sources(contract_sources, interface_sources)
         self._build = Build(self._sources)
 
