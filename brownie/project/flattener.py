@@ -16,23 +16,24 @@ PRAGMA_PATTERN = re.compile(r"^pragma.*;$", re.MULTILINE)
 LICENSE_PATTERN = re.compile(r"^// SPDX-License-Identifier: (.*)$", re.MULTILINE)
 
 
+@final
 class Flattener:
     """Brownie's Robust Solidity Flattener."""
 
     def __init__(
         self, primary_source_fp: str, contract_name: str, remappings: dict, compiler_settings: dict
     ) -> None:
-        self.sources: Dict[str, str] = {}
-        self.dependencies: DefaultDict[str, Set[str]] = defaultdict(set)
-        self.compiler_settings = compiler_settings
-        self.contract_name = contract_name
-        self.contract_file = self.path_to_name(primary_source_fp)
-        self.remappings = remappings
+        self.sources: Final[Dict[str, str]] = {}
+        self.dependencies: Final[DefaultDict[str, Set[str]]] = defaultdict(set)
+        self.compiler_settings: Final = compiler_settings
+        self.contract_name: Final = contract_name
+        self.contract_file: Final = self.path_to_name(primary_source_fp)
+        self.remappings: Final = remappings
 
         self.traverse(primary_source_fp)
 
         license_search = LICENSE_PATTERN.search(self.path_to_name(primary_source_fp))
-        self.license = license_search.group(1) if license_search else "NONE"
+        self.license: Final = license_search.group(1) if license_search else "NONE"
 
     @classmethod
     def path_to_name(cls, pth: str) -> str:
