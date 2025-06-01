@@ -129,9 +129,9 @@ def _get_path(path_str: str) -> Tuple[Path, Optional[Project]]:
     if not path.is_absolute():
         for project in get_loaded_projects():
             if path.parts[:1] == (project._structure["scripts"],):
-                script_path = project._path.joinpath(path)
+                script_path = project._path.joinpath(path)  # type: ignore [union-attr]
             else:
-                script_path = project._path.joinpath(project._structure["scripts"]).joinpath(path)
+                script_path = project._path.joinpath(project._structure["scripts"]).joinpath(path)  # type: ignore [union-attr]
             if script_path.exists():
                 return script_path.resolve(), project
         raise FileNotFoundError(f"Cannot find {path_str}")
@@ -140,7 +140,7 @@ def _get_path(path_str: str) -> Tuple[Path, Optional[Project]]:
         raise FileNotFoundError(f"Cannot find {path_str}")
 
     try:
-        project = next(i for i in get_loaded_projects() if path_str.startswith(i._path.as_posix()))
+        project = next(i for i in get_loaded_projects() if path_str.startswith(i._path.as_posix()))  # type: ignore [union-attr]
     except StopIteration:
         raise ProjectNotFound(f"{path_str} is not part of an active project")
 
