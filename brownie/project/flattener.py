@@ -95,12 +95,12 @@ class Flattener:
             "", LICENSE_PATTERN.sub("", IMPORT_PATTERN.sub("", src))
         )
 
-        source_strings = (f"// File: {file}\n\n{wipe(src)}" for src, file in zip(sources, flattened_deps))
-
         flat = (
             "\n".join(pragma for pragma in pragmas if "pragma solidity" not in pragma)
             + "\n\n"
-            + "\n".join(source_strings)
+            + "\n".join(
+                f"// File: {file}\n\n{wipe(src)}" for src, file in zip(sources, flattened_deps)
+            )
         )
         # hopefully this doesn't mess up anything pretty, but just gotta remove all
         # that extraneous whitespace
