@@ -1,7 +1,7 @@
 import re
 from collections import defaultdict
 from pathlib import Path
-from typing import DefaultDict, Dict, Set
+from typing import DefaultDict, Dict, Final, Set, final
 
 from eth_utils.toolz import mapcat
 
