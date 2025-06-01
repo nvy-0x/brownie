@@ -180,7 +180,7 @@ class Project(_ProjectBase):
         self._structure = expand_posix_vars(
             _load_project_structure_config(project_path), self._envvars
         )
-        self._build_path: Path = project_path.joinpath(self._structure["build"])
+        self._build_path = project_path.joinpath(self._structure["build"])
 
         self._name = name
         self._active = False
