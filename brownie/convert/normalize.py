@@ -3,7 +3,6 @@
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from eth_abi.grammar import ABIType, TupleType, parse
-from eth_typing import ABIEvent
 
 from .datatypes import EthAddress, HexString, ReturnValue
 from .main import to_bool, to_decimal, to_int, to_string, to_uint
@@ -28,7 +27,7 @@ def format_output(abi: Dict, outputs: Union[List, Tuple]) -> ReturnValue:
     return ReturnValue(result, abi["outputs"])
 
 
-def format_event(event: ABIEvent) -> Dict[str, Any]:
+def format_event(event: Dict[str, Any]) -> Dict[str, Any]:
     # Format event data based on ABI types
     if not event["decoded"]:
         topics = (
