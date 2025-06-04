@@ -55,7 +55,7 @@ class EventDict:
     Dict/list hybrid container, base class for all events fired in a transaction.
     """
 
-    def __init__(self, events: Optional[Iterable] = None) -> None:
+    def __init__(self, events: Optional[Iterable[Dict[str, Any]]] = None) -> None:
         """Instantiates the class.
 
         Args:
