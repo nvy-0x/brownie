@@ -619,18 +619,15 @@ def _get_branch_nodes(source_nodes: List[NodeBase]) -> BranchNodes:
     for node in source_nodes:
         branches[str(node.contract_id)] = set()
         for contract_node in node.children(depth=1, filters={"nodeType": "ContractDefinition"}):
-            for child_node in [
-                x
-                for i in contract_node
-                for x in i.children(
+            for i in contract_node:
+                for child_node in i.children(
                     filters=(
                         {"nodeType": "FunctionCall", "expression.name": "require"},
                         {"nodeType": "IfStatement"},
                         {"nodeType": "Conditional"},
                     )
-                )
-            ]:
-                branches[str(node.contract_id)] |= _get_recursive_branches(child_node)
+                ):
+                    branches[str(node.contract_id)] |= _get_recursive_branches(child_node)
     return branches
 
 
