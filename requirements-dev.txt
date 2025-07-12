@@ -24,9 +24,9 @@ bump2version==1.0.1
     # via bumpversion
 bumpversion==0.6.0
     # via -r requirements-dev.in
-cachetools==6.0.0
+cachetools==6.1.0
     # via tox
-certifi==2025.4.26
+certifi==2025.7.9
     # via
     #   -c /home/runner/work/brownie/brownie/requirements.txt
     #   requests
@@ -45,11 +45,11 @@ click==8.2.1
     #   pip-tools
 colorama==0.4.6
     # via tox
-coverage[toml]==7.8.2
+coverage[toml]==7.9.2
     # via
     #   -r requirements-dev.in
     #   pytest-cov
-cryptography==45.0.4
+cryptography==45.0.5
     # via secretstorage
 distlib==0.3.9
     # via virtualenv
@@ -64,7 +64,7 @@ filelock==3.18.0
     # via
     #   tox
     #   virtualenv
-flake8==7.2.0
+flake8==7.3.0
     # via -r requirements-dev.in
 idna==3.10
     # via
@@ -84,7 +84,7 @@ jaraco-classes==3.4.0
     # via keyring
 jaraco-context==6.0.1
     # via keyring
-jaraco-functools==4.1.0
+jaraco-functools==4.2.1
     # via keyring
 jeepney==0.9.0
     # via
@@ -140,18 +140,19 @@ pluggy==1.6.0
     # via
     #   -c /home/runner/work/brownie/brownie/requirements.txt
     #   pytest
+    #   pytest-cov
     #   tox
 py==1.11.0
     # via
     #   -c /home/runner/work/brownie/brownie/requirements.txt
     #   pytest
-pycodestyle==2.13.0
+pycodestyle==2.14.0
     # via flake8
 pycparser==2.22
     # via cffi
-pyflakes==3.3.2
+pyflakes==3.4.0
     # via flake8
-pygments==2.19.1
+pygments==2.19.2
     # via
     #   -c /home/runner/work/brownie/brownie/requirements.txt
     #   pygments-lexer-solidity
@@ -173,7 +174,7 @@ pytest==6.2.5
     #   -c /home/runner/work/brownie/brownie/requirements.txt
     #   pytest-cov
     #   pytest-mock
-pytest-cov==6.1.1
+pytest-cov==6.2.1
     # via -r requirements-dev.in
 pytest-mock==3.14.1
     # via -r requirements-dev.in
@@ -226,11 +227,11 @@ tox==4.15.1
     # via -r requirements-dev.in
 twine==6.0.1
     # via -r requirements-dev.in
-typing-extensions==4.14.0
+typing-extensions==4.14.1
     # via
     #   -c /home/runner/work/brownie/brownie/requirements.txt
     #   eth-retry
-urllib3==2.4.0
+urllib3==2.5.0
     # via
     #   -c /home/runner/work/brownie/brownie/requirements.txt
     #   requests
