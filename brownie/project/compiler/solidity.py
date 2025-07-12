@@ -260,7 +260,7 @@ def _get_unique_build_json(
 
     dependencies = []
     for node in contract_node.dependencies:
-        if i.nodeType == "ContractDefinition":
+        if node.nodeType == "ContractDefinition":
             # use contract aliases when recording dependencies, to avoid
             # potential namespace collisions when importing across projects
             name = node.name
