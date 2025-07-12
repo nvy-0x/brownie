@@ -32,6 +32,9 @@ EVM_VERSION_MAPPING = [
     ("byzantium", Version("0.4.0")),
 ]
 
+StatementNodes = Dict[str, Set[Tuple[int, int]]]
+BranchNodes = Dict[str, Set[NodeBase]]
+
 
 def get_version() -> Version:
     return solcx.get_solc_version(with_commit_hash=True)
@@ -587,14 +590,14 @@ def _get_active_fn(source_node: NodeBase, offset: Tuple[int, int]) -> Tuple[Node
     return fn_node, f"{fn_node.parent().name}.{name}"
 
 
-def _get_nodes(output_json: Dict) -> Tuple[Dict, Dict, Dict]:
-    source_nodes = solcast.from_standard_output(output_json)
+def _get_nodes(output_json: Dict) -> Tuple[List, StatementNodes, BranchNodes:
+    source_nodes: List[NodeBase] = solcast.from_standard_output(output_json)
     stmt_nodes = _get_statement_nodes(source_nodes)
     branch_nodes = _get_branch_nodes(source_nodes)
     return source_nodes, stmt_nodes, branch_nodes
 
 
-def _get_statement_nodes(source_nodes: Dict) -> Dict:
+def _get_statement_nodes(source_nodes: List[NodeBase]) -> StatementNodes:
     # Given a list of source nodes, returns a dict of lists of statement nodes
     return {
         str(node.contract_id): {
@@ -609,10 +612,10 @@ def _get_statement_nodes(source_nodes: Dict) -> Dict:
     }
 
 
-def _get_branch_nodes(source_nodes: List) -> Dict:
+def _get_branch_nodes(source_nodes: List[NodeBase]) -> BranchNodes:
     # Given a list of source nodes, returns a dict of lists of nodes corresponding
     # to possible branches in the code
-    branches: Dict = {}
+    branches: Dict[str, Set] = {}
     for node in source_nodes:
         branches[str(node.contract_id)] = set()
         for contract_node in node.children(depth=1, filters={"nodeType": "ContractDefinition"}):
@@ -631,7 +634,7 @@ def _get_branch_nodes(source_nodes: List) -> Dict:
     return branches
 
 
-def _get_recursive_branches(base_node: Any) -> Set:
+def _get_recursive_branches(base_node: NodeBase) -> Set[NodeBase]:
     # if node is IfStatement or Conditional, look only at the condition
     node = base_node if base_node.nodeType == "FunctionCall" else base_node.condition
     # for IfStatement, jumping indicates evaluating false
