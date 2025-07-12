@@ -259,12 +259,13 @@ def _get_unique_build_json(
     )
 
     dependencies = []
-    for node in [i for i in contract_node.dependencies if i.nodeType == "ContractDefinition"]:
-        # use contract aliases when recording dependencies, to avoid
-        # potential namespace collisions when importing across projects
-        name = node.name
-        path_str = node.parent().absolutePath
-        dependencies.append(_get_alias(name, path_str))
+    for node in contract_node.dependencies:
+        if i.nodeType == "ContractDefinition":
+            # use contract aliases when recording dependencies, to avoid
+            # potential namespace collisions when importing across projects
+            name = node.name
+            path_str = node.parent().absolutePath
+            dependencies.append(_get_alias(name, path_str))
 
     return {
         "allSourcePaths": paths,
@@ -281,9 +282,9 @@ def _get_unique_build_json(
 def _format_link_references(evm: Dict) -> str:
     # Standardizes formatting for unlinked libraries within bytecode
     bytecode = evm["bytecode"]["object"]
-    references = [
+    references = (
         (k, x) for v in evm["bytecode"].get("linkReferences", {}).values() for k, x in v.items()
-    ]
+    )
     for n, loc in [(i[0], x["start"] * 2) for i in references for x in i[1]]:
         bytecode = f"{bytecode[:loc]}__{n[:36]:_<36}__{bytecode[loc+40:]}"
     return bytecode
