@@ -590,7 +590,7 @@ def _get_active_fn(source_node: NodeBase, offset: Tuple[int, int]) -> Tuple[Node
     return fn_node, f"{fn_node.parent().name}.{name}"
 
 
-def _get_nodes(output_json: Dict) -> Tuple[List, StatementNodes, BranchNodes:
+def _get_nodes(output_json: Dict) -> Tuple[List[NodeBase], StatementNodes, BranchNodes:
     source_nodes: List[NodeBase] = solcast.from_standard_output(output_json)
     stmt_nodes = _get_statement_nodes(source_nodes)
     branch_nodes = _get_branch_nodes(source_nodes)
