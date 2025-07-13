@@ -292,7 +292,7 @@ def _format_link_references(evm: Dict) -> HexStr:
 
 
 def _remove_metadata(bytecode: HexStr) -> HexStr:
-    return HexStr(bytecode[: -(int(bytecode[-4:], 16) + 2) * 2] if bytecode else "")
+    return bytecode[: -(int(bytecode[-4:], 16) + 2) * 2] if bytecode else ""  # type: ignore [return-value]
 
 
 def _generate_coverage_data(
@@ -303,7 +303,7 @@ def _generate_coverage_data(
     branch_nodes: BranchNodes,
     has_fallback: bool,
     instruction_count: int,
-) -> Tuple:
+) -> Tuple[dict, dict, dict]:
     # Generates data used by Brownie for debugging and coverage evaluation
     if not opcodes_str:
         return {}, {}, {}
