@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import solcast
 import solcx
+from eth_typing import HexStr
 from requests.exceptions import ConnectionError
 from semantic_version import Version
 from solcast.nodes import NodeBase, is_inside_offset
@@ -99,7 +100,7 @@ def install_solc(*versions: Union[Version, str]) -> None:
         solcx.install_solc(version, show_progress=False)
 
 
-def get_abi(contract_source: str, allow_paths: Optional[str] = None) -> Dict:
+def get_abi(contract_source: str, allow_paths: Optional[str] = None) -> Dict[str, List[Dict[str, Any]]]:
     """
     Given a contract source, returns a dict of {name: abi}
 
@@ -107,7 +108,7 @@ def get_abi(contract_source: str, allow_paths: Optional[str] = None) -> Dict:
     """
     version = find_best_solc_version({"<stdin>": contract_source})
     set_solc_version(version)
-    compiled = solcx.compile_source(
+    compiled: Dict[str, dict] = solcx.compile_source(
         contract_source, allow_empty=True, allow_paths=allow_paths, output_values=["abi"]
     )
     return {k.rsplit(":")[-1]: v["abi"] for k, v in compiled.items()}
@@ -237,7 +238,7 @@ def _get_solc_version_list() -> Tuple[List, List]:
 
 
 def _get_unique_build_json(
-    output_evm: Dict, contract_node: Any, stmt_nodes: Dict, branch_nodes: Dict, has_fallback: bool
+    output_evm: Dict, contract_node: Any, stmt_nodes: StatementNodes, branch_nodes: BranchNodes, has_fallback: bool
 ) -> Dict:
     paths = {
         str(i.contract_id): i.parent().absolutePath
@@ -279,18 +280,18 @@ def _get_unique_build_json(
     }
 
 
-def _format_link_references(evm: Dict) -> str:
+def _format_link_references(evm: Dict) -> HexStr:
     # Standardizes formatting for unlinked libraries within bytecode
-    bytecode = evm["bytecode"]["object"]
-    references = (
-        (k, x) for v in evm["bytecode"].get("linkReferences", {}).values() for k, x in v.items()
-    )
-    for n, loc in [(i[0], x["start"] * 2) for i in references for x in i[1]]:
+    bytecode_dct: dict = evm["bytecode"]
+    bytecode = bytecode_dct["object"]
+    link_refs: Dict[str, dict] = bytecode_dct.get("linkReferences", {})
+    references = ((k, x) for v in link_refs.values() for k, x in v.items())
+    for n, loc in ((i[0], x["start"] * 2) for i in references for x in i[1]):
         bytecode = f"{bytecode[:loc]}__{n[:36]:_<36}__{bytecode[loc+40:]}"
     return bytecode
 
 
-def _remove_metadata(bytecode: str) -> str:
+def _remove_metadata(bytecode: HexStr) -> HexStr:
     return bytecode[: -(int(bytecode[-4:], 16) + 2) * 2] if bytecode else ""
 
 
@@ -298,8 +299,8 @@ def _generate_coverage_data(
     source_map_str: str,
     opcodes_str: str,
     contract_node: Any,
-    stmt_nodes: Dict,
-    branch_nodes: Dict,
+    stmt_nodes: StatementNodes,
+    branch_nodes: BranchNodes,
     has_fallback: bool,
     instruction_count: int,
 ) -> Tuple:
