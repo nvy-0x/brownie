@@ -6,7 +6,7 @@
 
 int CPyGlobalsInit(void);
 
-extern PyObject *CPyStatics[1338];
+extern PyObject *CPyStatics[1340];
 extern const char * const CPyLit_Str[];
 extern const char * const CPyLit_Bytes[];
 extern const char * const CPyLit_Int[];
@@ -630,6 +630,8 @@ extern PyObject *CPyPy_datatypes____convert_str(PyObject *self, PyObject *const 
 extern char CPyDef_datatypes_____top_level__(void);
 extern PyObject *CPyStatic_main___Decimal;
 extern PyObject *CPyStatic_main___HexBytes;
+extern PyObject *CPyStatic_main___is_hex;
+extern PyObject *CPyStatic_main___to_text;
 extern PyObject *CPyDef_main___to_uint(PyObject *cpy_r_value, PyObject *cpy_r_type_str);
 extern PyObject *CPyPy_main___to_uint(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
 extern PyObject *CPyDef_main___to_int(PyObject *cpy_r_value, PyObject *cpy_r_type_str);
@@ -722,7 +724,7 @@ extern PyObject *CPyDef_solidity____format_link_references(PyObject *cpy_r_evm);
 extern PyObject *CPyPy_solidity____format_link_references(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
 extern PyObject *CPyDef_solidity____remove_metadata(PyObject *cpy_r_bytecode);
 extern PyObject *CPyPy_solidity____remove_metadata(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
-extern PyObject *CPyDef_solidity____generate_coverage_data(PyObject *cpy_r_source_map_str, PyObject *cpy_r_opcodes_str, PyObject *cpy_r_contract_node, PyObject *cpy_r_stmt_nodes, PyObject *cpy_r_branch_nodes, char cpy_r_has_fallback, CPyTagged cpy_r_instruction_count);
+extern tuple_T3OOO CPyDef_solidity____generate_coverage_data(PyObject *cpy_r_source_map_str, PyObject *cpy_r_opcodes_str, PyObject *cpy_r_contract_node, PyObject *cpy_r_stmt_nodes, PyObject *cpy_r_branch_nodes, char cpy_r_has_fallback, CPyTagged cpy_r_instruction_count);
 extern PyObject *CPyPy_solidity____generate_coverage_data(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
 extern char CPyDef_solidity____find_revert_offset(PyObject *cpy_r_pc_list, PyObject *cpy_r_source_map, PyObject *cpy_r_source_node, PyObject *cpy_r_fn_node, PyObject *cpy_r_fn_name);
 extern PyObject *CPyPy_solidity____find_revert_offset(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);

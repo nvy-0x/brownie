@@ -100,7 +100,9 @@ def install_solc(*versions: Union[Version, str]) -> None:
         solcx.install_solc(version, show_progress=False)
 
 
-def get_abi(contract_source: str, allow_paths: Optional[str] = None) -> Dict[str, List[Dict[str, Any]]]:
+def get_abi(
+    contract_source: str, allow_paths: Optional[str] = None
+) -> Dict[str, List[Dict[str, Any]]]:
     """
     Given a contract source, returns a dict of {name: abi}
 
@@ -238,7 +240,11 @@ def _get_solc_version_list() -> Tuple[List, List]:
 
 
 def _get_unique_build_json(
-    output_evm: Dict, contract_node: Any, stmt_nodes: StatementNodes, branch_nodes: BranchNodes, has_fallback: bool
+    output_evm: Dict,
+    contract_node: Any,
+    stmt_nodes: StatementNodes,
+    branch_nodes: BranchNodes,
+    has_fallback: bool,
 ) -> Dict:
     paths = {
         str(i.contract_id): i.parent().absolutePath
