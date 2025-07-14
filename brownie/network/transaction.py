@@ -62,7 +62,7 @@ def trace_property(fn: Callable[["TransactionReceipt"], _T]) -> property[_T]:
     return wrapper
 
 
-def trace_inspection(fn: Callable[Concatenate["TransactionReceipt", _P], _T]) -> Callable[Concatenate["TransactionReceipt", _P], _T:
+def trace_inspection(fn: Callable[Concatenate["TransactionReceipt", _P], _T]) -> Callable[Concatenate["TransactionReceipt", _P], _T]:
     def wrapper(self: "TransactionReceipt", *args: _P.args, **kwargs: _P.kwargs) -> _T:
         if self.contract_address:
             raise NotImplementedError(
