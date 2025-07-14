@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import decimal
+from decimal import Decimal
 from typing import Any, Final, Union
 
 import faster_eth_utils
@@ -11,7 +11,6 @@ from .datatypes import EthAddress, Fixed, HexString, Wei
 from .utils import get_int_bounds
 
 
-Decimal: Final = decimal.Decimal
 HexBytes: Final = hexbytes.HexBytes
 
 is_hex: Final = faster_eth_utils.is_hex
