@@ -9,7 +9,7 @@ from collections import deque
 from enum import IntEnum
 from hashlib import sha1
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, Concatenate, Dict, List, Optional, ParamSpec, Sequence, Tuple, TypeVar, Union
 from warnings import warn
 
 import black
@@ -31,6 +31,9 @@ from brownie.utils.output import build_tree
 from . import state
 from .event import EventDict, _decode_logs, _decode_trace
 from .web3 import web3
+
+_T = TypeVar("_T")
+_P = ParamSpec("_P")
 
 _marker = deque("-/|\\-/|\\")
 
