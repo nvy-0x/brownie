@@ -36,6 +36,8 @@ EVM_VERSION_MAPPING = [
 StatementNodes = Dict[str, Set[Tuple[int, int]]]
 BranchNodes = Dict[str, Set[NodeBase]]
 
+_BINOPS_PARAMS: Final = {"nodeType": "BinaryOperation", "typeDescriptions.typeString": "bool"}
+
 
 def get_version() -> Version:
     return solcx.get_solc_version(with_commit_hash=True)
@@ -55,10 +57,11 @@ def compile_from_input_json(
     Returns: standard compiler output json
     """
 
-    optimizer = input_json["settings"]["optimizer"]
-    input_json["settings"].setdefault("evmVersion", None)
-    if input_json["settings"]["evmVersion"] in EVM_EQUIVALENTS:
-        input_json["settings"]["evmVersion"] = EVM_EQUIVALENTS[input_json["settings"]["evmVersion"]]
+    settings: dict = input_json["settings"]
+    optimizer: dict = settings["optimizer"]
+    settings.setdefault("evmVersion", None)
+    if settings["evmVersion"] in EVM_EQUIVALENTS:
+        settings["evmVersion"] = EVM_EQUIVALENTS[settings["evmVersion"]]
 
     if not silent:
         print(f"Compiling contracts...\n  Solc version: {str(solcx.get_solc_version())}")
@@ -66,8 +69,8 @@ def compile_from_input_json(
         opt = f"Enabled  Runs: {optimizer['runs']}" if optimizer["enabled"] else "Disabled"
         print(f"  Optimizer: {opt}")
 
-        if input_json["settings"]["evmVersion"]:
-            print(f"  EVM Version: {input_json['settings']['evmVersion'].capitalize()}")
+        if settings["evmVersion"]:
+            print(f"  EVM Version: {settings['evmVersion'].capitalize()}")
 
     try:
         return solcx.compile_standard(input_json, allow_paths=allow_paths)
@@ -143,20 +146,21 @@ def find_solc_versions(
     new_versions = set()
 
     for path, source in contract_sources.items():
-        pragma_specs[path] = sources.get_pragma_spec(source, path)
-        version = pragma_specs[path].select(installed_versions)
+        pragma_spec = sources.get_pragma_spec(source, path)
+        pragma_specs[path] = pragma_spec
+        version = pragma_spec.select(installed_versions)
 
         if not version and not install_needed and not install_latest:
             raise IncompatibleSolcVersion(
-                f"No installed solc version matching '{pragma_specs[path]}' in '{path}'"
+                f"No installed solc version matching '{pragma_spec}' in '{path}'"
             )
 
         # if no installed version of solc matches the pragma, find the latest available version
-        latest = pragma_specs[path].select(available_versions)
+        latest = pragma_spec.select(available_versions)
 
         if not version and not latest:
             raise IncompatibleSolcVersion(
-                f"No installable solc version matching '{pragma_specs[path]}' in '{path}'"
+                f"No installable solc version matching '{pragma_spec}' in '{path}'"
             )
 
         if not version or (install_latest and latest > version):
@@ -255,9 +259,11 @@ def _get_unique_build_json(
     without_metadata = _remove_metadata(output_evm["deployedBytecode"]["object"])
     instruction_count = len(without_metadata) // 2
 
+    bytecode_params: dict = output_evm["deployedBytecode"]
+
     pc_map, statement_map, branch_map = _generate_coverage_data(
-        output_evm["deployedBytecode"]["sourceMap"],
-        output_evm["deployedBytecode"]["opcodes"],
+        bytecode_params["sourceMap"],
+        bytecode_params["opcodes"],
         contract_node,
         stmt_nodes,
         branch_nodes,
@@ -625,7 +631,8 @@ def _get_branch_nodes(source_nodes: List[NodeBase]) -> BranchNodes:
     # to possible branches in the code
     branches: BranchNodes = {}
     for node in source_nodes:
-        branches[str(node.contract_id)] = set()
+        contract_id = str(node.contract_id)
+        branches[contract_id] = set()
         for contract_node in node.children(depth=1, filters={"nodeType": "ContractDefinition"}):
             for i in contract_node:
                 for child_node in i.children(
@@ -635,15 +642,17 @@ def _get_branch_nodes(source_nodes: List[NodeBase]) -> BranchNodes:
                         {"nodeType": "Conditional"},
                     )
                 ):
-                    branches[str(node.contract_id)] |= _get_recursive_branches(child_node)
+                    branches[contract_id] |= _get_recursive_branches(child_node)
     return branches
 
 
 def _get_recursive_branches(base_node: NodeBase) -> Set[NodeBase]:
+    node_type = base_node.nodeType
+    
     # if node is IfStatement or Conditional, look only at the condition
-    node = base_node if base_node.nodeType == "FunctionCall" else base_node.condition
+    node = base_node if node_type == "FunctionCall" else base_node.condition
     # for IfStatement, jumping indicates evaluating false
-    jump_is_truthful = base_node.nodeType != "IfStatement"
+    jump_is_truthful = node_type != "IfStatement"
 
     filters = (
         {"nodeType": "BinaryOperation", "typeDescriptions.typeString": "bool", "operator": "||"},
@@ -654,7 +663,7 @@ def _get_recursive_branches(base_node: NodeBase) -> Set[NodeBase]:
     # if no BinaryOperation nodes are found, this node is the branch
     if not all_binaries:
         # if node is FunctionCall, look at the first argument
-        if base_node.nodeType == "FunctionCall":
+        if node_type == "FunctionCall":
             node = node.arguments[0]
         # some versions of solc do not map IfStatement unary opertions to bytecode
         elif node.nodeType == "UnaryOperation":
@@ -680,9 +689,7 @@ def _get_recursive_branches(base_node: NodeBase) -> Set[NodeBase]:
 
 def _is_rightmost_operation(node: NodeBase, depth: int) -> bool:
     # Check if the node is the final operation within the expression
-    parents = node.parents(
-        depth, {"nodeType": "BinaryOperation", "typeDescriptions.typeString": "bool"}
-    )
+    parents = node.parents(depth, _BINOPS_PARAMS)
     return not next(
         (i for i in parents if i.leftExpression == node or node.is_child_of(i.leftExpression)),
         False,
@@ -692,9 +699,7 @@ def _is_rightmost_operation(node: NodeBase, depth: int) -> bool:
 def _check_left_operator(node: NodeBase, depth: int) -> bool:
     # Find the nearest parent boolean where this node sits on the left side of
     # the comparison, and return True if that node's operator is ||
-    parents = node.parents(
-        depth, {"nodeType": "BinaryOperation", "typeDescriptions.typeString": "bool"}
-    )
+    parents = node.parents(depth, _BINOPS_PARAMS)
     op = next(
         i for i in parents if i.leftExpression == node or node.is_child_of(i.leftExpression)
     ).operator
