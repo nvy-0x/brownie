@@ -3,9 +3,9 @@
 import decimal
 from typing import Any, Final, Union
 
+import faster_eth_utils
 import hexbytes
 from eth_typing import ChecksumAddress
-from faster_eth_utils import is_hex, to_text
 
 from .datatypes import EthAddress, Fixed, HexString, Wei
 from .utils import get_int_bounds
@@ -13,6 +13,9 @@ from .utils import get_int_bounds
 
 Decimal: Final = decimal.Decimal
 HexBytes: Final = hexbytes.HexBytes
+
+is_hex: Final = faster_eth_utils.is_hex
+to_text: Final = faster_eth_utils.to_text
 
 
 def to_uint(value: Any, type_str: str = "uint256") -> Wei:
