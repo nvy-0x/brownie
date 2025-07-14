@@ -35,11 +35,11 @@ from .web3 import web3
 _marker = deque("-/|\\-/|\\")
 
 
-def trace_property(fn: Callable) -> Any:
+def trace_property(fn: Callable[["TransactionReceipt"], _T]) -> property[_T]:
     # attributes that are only available after querying the tranasaction trace
 
-    @property  # type: ignore
-    def wrapper(self: "TransactionReceipt") -> Any:
+    @property
+    def wrapper(self: "TransactionReceipt") -> _T:
         if self.status < 0:
             return None
         if self._trace_exc is not None:
@@ -59,8 +59,8 @@ def trace_property(fn: Callable) -> Any:
     return wrapper
 
 
-def trace_inspection(fn: Callable) -> Any:
-    def wrapper(self: "TransactionReceipt", *args: Any, **kwargs: Any) -> Any:
+def trace_inspection(fn: Callable[Concatenate["TransactionReceipt", _P], _T]) -> Callable[Concatenate["TransactionReceipt", _P], _T:
+    def wrapper(self: "TransactionReceipt", *args: P.args, **kwargs: P.kwargs) -> _T:
         if self.contract_address:
             raise NotImplementedError(
                 "Trace inspection methods are not available for deployment transactions."
