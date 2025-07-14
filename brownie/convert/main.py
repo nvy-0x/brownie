@@ -17,6 +17,8 @@ HexBytes: Final = hexbytes.HexBytes
 is_hex: Final = faster_eth_utils.is_hex
 to_text: Final = faster_eth_utils.to_text
 
+_TEN_DECIMALS: Final = Decimal("1.0000000000")
+
 
 def to_uint(value: Any, type_str: str = "uint256") -> Wei:
     """Convert a value to an unsigned integer"""
@@ -41,7 +43,7 @@ def to_decimal(value: Any) -> Fixed:
     d: Fixed = Fixed(value)
     if d < -(2**127) or d >= 2**127:
         raise OverflowError(f"{value} is outside allowable range for decimal")
-    if d.quantize(Decimal("1.0000000000")) != d:
+    if d.quantize(_TEN_DECIMALS) != d:
         raise ValueError("Maximum of 10 decimal points allowed")
     return d
 
