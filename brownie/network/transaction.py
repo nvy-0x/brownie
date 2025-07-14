@@ -63,7 +63,7 @@ def trace_property(fn: Callable[["TransactionReceipt"], _T]) -> property[_T]:
 
 
 def trace_inspection(fn: Callable[Concatenate["TransactionReceipt", _P], _T]) -> Callable[Concatenate["TransactionReceipt", _P], _T:
-    def wrapper(self: "TransactionReceipt", *args: P.args, **kwargs: P.kwargs) -> _T:
+    def wrapper(self: "TransactionReceipt", *args: _P.args, **kwargs: _P.kwargs) -> _T:
         if self.contract_address:
             raise NotImplementedError(
                 "Trace inspection methods are not available for deployment transactions."
