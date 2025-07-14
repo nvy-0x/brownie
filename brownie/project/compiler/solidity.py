@@ -617,7 +617,7 @@ def _get_statement_nodes(source_nodes: List[NodeBase]) -> StatementNodes:
 def _get_branch_nodes(source_nodes: List[NodeBase]) -> BranchNodes:
     # Given a list of source nodes, returns a dict of lists of nodes corresponding
     # to possible branches in the code
-    branches: Dict[str, Set] = {}
+    branches: BranchNodes = {}
     for node in source_nodes:
         branches[str(node.contract_id)] = set()
         for contract_node in node.children(depth=1, filters={"nodeType": "ContractDefinition"}):
