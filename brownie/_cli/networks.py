@@ -2,12 +2,11 @@
 
 import shutil
 import sys
-from pathlib import Path
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Final, Tuple
 
 import yaml
 
-from brownie._config import CONFIG, _get_data_folder
+from brownie._config import CONFIG, NETWORK_CONFIG_YAML, _get_data_folder
 from brownie.utils import bright_black, bright_magenta, color, green, notify
 from brownie.utils.docopt import docopt
 
@@ -42,11 +41,13 @@ Use `brownie networks list true` to see a detailed view of available networks
 as well as possible data fields when declaring new networks."""
 
 
-DEV_REQUIRED = ("id", "host", "cmd", "cmd_settings")
-PROD_REQUIRED = ("id", "host", "chainid")
-OPTIONAL = ("name", "explorer", "timeout", "multicall2", "provider")
+PROVIDERS_CONFIG_YAML: Final = _get_data_folder().joinpath("providers-config.yaml")
 
-DEV_CMD_SETTINGS = (
+DEV_REQUIRED: Final = "id", "host", "cmd", "cmd_settings"
+PROD_REQUIRED: Final = "id", "host", "chainid"
+OPTIONAL: Final = "name", "explorer", "timeout", "multicall2", "provider"
+
+DEV_CMD_SETTINGS: Final = (
     "port",
     "gas_limit",
     "accounts",
@@ -86,7 +87,7 @@ def _list(verbose=False):
             print("Please pass 'True' or 'False'.")
             raise e
 
-    with _get_data_folder().joinpath("network-config.yaml").open() as fp:
+    with NETWORK_CONFIG_YAML.open() as fp:
         networks = yaml.safe_load(fp)
 
     print("The following networks are declared:")
@@ -120,7 +121,7 @@ def _add(env, id_, *args):
     if "name" not in args_dict:
         args_dict["name"] = id_
 
-    with _get_data_folder().joinpath("network-config.yaml").open() as fp:
+    with NETWORK_CONFIG_YAML.open() as fp:
         networks = yaml.safe_load(fp)
     if env.lower() == "development":
         try:
@@ -147,7 +148,7 @@ def _add(env, id_, *args):
         new = {"id": id_, **args_dict}
         _validate_network(new, PROD_REQUIRED)
         target.append(new)
-    with _get_data_folder().joinpath("network-config.yaml").open("w") as fp:
+    with NETWORK_CONFIG_YAML.open("w") as fp:
         yaml.dump(networks, fp)
 
     notify(
@@ -162,7 +163,7 @@ def _modify(id_, *args):
 
     args_dict = _parse_args(args)
 
-    with _get_data_folder().joinpath("network-config.yaml").open() as fp:
+    with NETWORK_CONFIG_YAML.open() as fp:
         networks = yaml.safe_load(fp)
 
     is_dev = "cmd" in CONFIG.networks[id_]
@@ -186,7 +187,7 @@ def _modify(id_, *args):
     if "name" not in target:
         target["name"] = id_
 
-    with _get_data_folder().joinpath("network-config.yaml").open("w") as fp:
+    with NETWORK_CONFIG_YAML.open("w") as fp:
         yaml.dump(networks, fp)
 
     notify(
@@ -199,7 +200,7 @@ def _delete(id_):
     if id_ not in CONFIG.networks:
         raise ValueError(f"Network '{bright_magenta}{id_}{color}' does not exist")
 
-    with _get_data_folder().joinpath("network-config.yaml").open() as fp:
+    with NETWORK_CONFIG_YAML.open() as fp:
         networks = yaml.safe_load(fp)
 
     if "cmd" in CONFIG.networks[id_]:
@@ -209,7 +210,7 @@ def _delete(id_):
         target["networks"] = [i for i in target["networks"] if i["id"] != id_]
         networks["live"] = [i for i in networks["live"] if i["networks"]]
 
-    with _get_data_folder().joinpath("network-config.yaml").open("w") as fp:
+    with NETWORK_CONFIG_YAML.open("w") as fp:
         yaml.dump(networks, fp)
 
     notify("SUCCESS", f"Network '{bright_magenta}{id_}{color}' has been deleted")
@@ -223,7 +224,7 @@ def _import(path_str, replace=False):
     with path.open() as fp:
         new_networks = yaml.safe_load(fp)
 
-    with _get_data_folder().joinpath("network-config.yaml").open() as fp:
+    with NETWORK_CONFIG_YAML.open() as fp:
         old_networks = yaml.safe_load(fp)
 
     for value in new_networks.get("development", []):
@@ -259,7 +260,7 @@ def _import(path_str, replace=False):
         _validate_network(value, PROD_REQUIRED)
         prod["networks"].append(value)
 
-    with _get_data_folder().joinpath("network-config.yaml").open("w") as fp:
+    with NETWORK_CONFIG_YAML.open("w") as fp:
         yaml.dump(old_networks, fp)
 
     notify("SUCCESS", f"Network settings imported from '{bright_magenta}{path}{color}'")
@@ -274,25 +275,25 @@ def _export(path_str):
             raise FileExistsError(f"{path} already exists")
     if not path.suffix:
         path = path.with_suffix(".yaml")
-    shutil.copy(_get_data_folder().joinpath("network-config.yaml"), path)
+    shutil.copy(NETWORK_CONFIG_YAML, path)
 
     notify("SUCCESS", f"Network settings exported as '{bright_magenta}{path}{color}'")
 
 
 def _update_provider(name, url):
-    with _get_data_folder().joinpath("providers-config.yaml").open() as fp:
-        providers = yaml.safe_load(fp)
+    with PROVIDERS_CONFIG_YAML.open() as fp:
+        providers: dict = yaml.safe_load(fp)
 
     providers[name] = {"host": url}
 
-    with _get_data_folder().joinpath("providers-config.yaml").open("w") as fp:
+    with PROVIDERS_CONFIG_YAML.open("w") as fp:
         yaml.dump(providers, fp)
 
     notify("SUCCESS", f"Provider '{bright_magenta}{name}{color}' has been updated")
 
 
 def _delete_provider(name):
-    with _get_data_folder().joinpath("providers-config.yaml").open() as fp:
+    with PROVIDERS_CONFIG_YAML.open() as fp:
         providers = yaml.safe_load(fp)
 
     if name not in providers.keys():
@@ -300,20 +301,20 @@ def _delete_provider(name):
 
     del providers[name]
 
-    with _get_data_folder().joinpath("providers-config.yaml").open("w") as fp:
+    with PROVIDERS_CONFIG_YAML.open("w") as fp:
         yaml.dump(providers, fp)
 
     notify("SUCCESS", f"Provider '{bright_magenta}{name}{color}' has been deleted")
 
 
 def _set_provider(name):
-    with _get_data_folder().joinpath("providers-config.yaml").open() as fp:
+    with PROVIDERS_CONFIG_YAML.open() as fp:
         providers = yaml.safe_load(fp)
 
     if name not in providers.keys():
         raise ValueError(f"Provider '{bright_magenta}{name}{color}' does not exist")
 
-    with _get_data_folder().joinpath("network-config.yaml").open() as fp:
+    with NETWORK_CONFIG_YAML.open() as fp:
         networks = yaml.safe_load(fp)
 
     for blockchain in networks["live"]:
@@ -340,7 +341,7 @@ def _list_providers(verbose=False):
             print("Please pass 'True' or 'False'.")
             raise e
 
-    with _get_data_folder().joinpath("providers-config.yaml").open() as fp:
+    with PROVIDERS_CONFIG_YAML.open() as fp:
         providers = yaml.safe_load(fp)
 
     print("The following providers are declared:")
