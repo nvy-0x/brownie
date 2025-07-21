@@ -2,11 +2,12 @@
 
 import shutil
 import sys
+from pathlib import Path
 from typing import Any, Dict, Final, Tuple
 
 import yaml
 
-from brownie._config import CONFIG, NETWORK_CONFIG_YAML, _get_data_folder
+from brownie._config import CONFIG, DATA_FOLDER, NETWORK_CONFIG_YAML
 from brownie.utils import bright_black, bright_magenta, color, green, notify
 from brownie.utils.docopt import docopt
 
@@ -41,7 +42,7 @@ Use `brownie networks list true` to see a detailed view of available networks
 as well as possible data fields when declaring new networks."""
 
 
-PROVIDERS_CONFIG_YAML: Final = _get_data_folder().joinpath("providers-config.yaml")
+PROVIDERS_CONFIG_YAML: Final = DATA_FOLDER.joinpath("providers-config.yaml")
 
 DEV_REQUIRED: Final = "id", "host", "cmd", "cmd_settings"
 PROD_REQUIRED: Final = "id", "host", "chainid"
@@ -79,7 +80,7 @@ def main():
         return
 
 
-def _list(verbose=False):
+def _list(verbose: str | bool = False):
     if isinstance(verbose, str):
         try:
             verbose = eval(verbose.capitalize())
@@ -196,7 +197,7 @@ def _modify(id_, *args):
     _print_verbose_network_description(target, True)
 
 
-def _delete(id_):
+def _delete(id_: str) -> None:
     if id_ not in CONFIG.networks:
         raise ValueError(f"Network '{bright_magenta}{id_}{color}' does not exist")
 
@@ -216,7 +217,7 @@ def _delete(id_):
     notify("SUCCESS", f"Network '{bright_magenta}{id_}{color}' has been deleted")
 
 
-def _import(path_str, replace=False):
+def _import(path_str: str, replace: str | bool = False) -> None:
     if isinstance(replace, str):
         replace = eval(replace.capitalize())
 
@@ -266,7 +267,7 @@ def _import(path_str, replace=False):
     notify("SUCCESS", f"Network settings imported from '{bright_magenta}{path}{color}'")
 
 
-def _export(path_str):
+def _export(path_str: str) -> None:
     path = Path(path_str)
     if path.exists():
         if path.is_dir():
@@ -292,7 +293,7 @@ def _update_provider(name, url):
     notify("SUCCESS", f"Provider '{bright_magenta}{name}{color}' has been updated")
 
 
-def _delete_provider(name):
+def _delete_provider(name: str) -> None:
     with PROVIDERS_CONFIG_YAML.open() as fp:
         providers = yaml.safe_load(fp)
 
@@ -307,7 +308,7 @@ def _delete_provider(name):
     notify("SUCCESS", f"Provider '{bright_magenta}{name}{color}' has been deleted")
 
 
-def _set_provider(name):
+def _set_provider(name: str) -> None:
     with PROVIDERS_CONFIG_YAML.open() as fp:
         providers = yaml.safe_load(fp)
 
@@ -333,7 +334,7 @@ def _set_provider(name):
                 )
 
 
-def _list_providers(verbose=False):
+def _list_providers(verbose: str | bool = False) -> None:
     if isinstance(verbose, str):
         try:
             verbose = eval(verbose.capitalize())
