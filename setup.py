@@ -40,6 +40,7 @@ else:
                 "brownie/network/__init__.py",
                 "brownie/network/event.py",
                 "brownie/network/state.py",
+                "brownie/network/web3.py",
                 "brownie/project",
                 "brownie/test/coverage.py",
                 "brownie/typing.py",
